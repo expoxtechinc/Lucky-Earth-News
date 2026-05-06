@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #1a6b3c;
+  --color-primary-dark: #135230;
+  --color-primary-light: #e8f5ee;
+  --color-accent: #f0a500;
+  --color-accent-dark: #c88700;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, sans-serif; }
