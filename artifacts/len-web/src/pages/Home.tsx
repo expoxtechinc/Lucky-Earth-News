@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiFetch, NewsItem, NewsResponse } from "@/lib/api";
 import NewsCard from "@/components/NewsCard";
-import NewsModal from "@/components/NewsModal";
 
 export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -13,7 +12,6 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
 
   useEffect(() => {
     apiFetch<string[]>("/news/categories")
@@ -88,7 +86,7 @@ export default function Home() {
               <button
                 key={cat}
                 onClick={() => { setSelectedCat(cat); setSearchInput(""); setSearch(""); }}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium border-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap cursor-pointer ${
                   selectedCat === cat
                     ? "bg-[#1a6b3c] border-[#1a6b3c] text-white"
                     : "bg-white border-gray-200 text-gray-500 hover:border-[#1a6b3c] hover:text-[#1a6b3c]"
@@ -111,13 +109,13 @@ export default function Home() {
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No news found</h3>
             <p className="text-sm">Try a different search or category.</p>
             <p className="text-xs mt-3 text-gray-400">
-              If this is your first time, visit <a href="/admin" className="text-[#1a6b3c] font-medium">Admin</a> to seed the database.
+              If this is your first time, visit <a href="/admin" className="text-[#1a6b3c] font-medium">Admin</a> and click "Seed DB" to load sample articles.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {news.map(item => (
-              <NewsCard key={item._id} item={item} onClick={setSelectedItem} />
+              <NewsCard key={item._id} item={item} />
             ))}
           </div>
         )}
@@ -135,8 +133,6 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      <NewsModal item={selectedItem} onClose={() => setSelectedItem(null)} />
 
       <footer className="text-center py-8 text-sm text-gray-400 border-t border-gray-100 bg-white mt-8">
         © 2026 Lucky Earth News. All rights reserved.
