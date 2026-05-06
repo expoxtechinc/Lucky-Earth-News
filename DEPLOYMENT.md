@@ -1,181 +1,171 @@
-# Deployment Guide — Lucky Earth News (LEN)
+# Lucky Earth News — Complete Deployment Guide (Vercel)
 
-Complete step-by-step guide to deploy your news platform.
-
----
-
-## Step 1: Fix MongoDB Atlas Connection
-
-Your app uses MongoDB Atlas. You must allow connections from anywhere:
-
-1. Log in to [cloud.mongodb.com](https://cloud.mongodb.com)
-2. Select your cluster → **Network Access** (left sidebar)
-3. Click **+ Add IP Address** → **Allow Access from Anywhere** → type `0.0.0.0/0` → **Confirm**
-4. Go to **Database Access** → find your user → click **Edit** → copy or reset the password
-5. Your connection string format: `mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/lucky-earth-news`
-
-**Update your `MONGO_URI` secret in Replit:**
-- Click the lock icon (Secrets) in the left sidebar
-- Find `MONGO_URI` → update with real password
+> Follow these steps in order. Everything is designed to work first try.
 
 ---
 
-## Step 2: Seed the Database (First Time Only)
+## STEP 1 — Fix Your MongoDB Password (Required First)
 
-After fixing MongoDB, run this once to create the admin user and sample articles:
+Your `MONGO_URI` secret has a placeholder password. Fix it before anything else.
 
-```bash
-curl -X POST https://your-app-url/api/seed
-```
+**A. Get your real MongoDB password:**
+1. Go to [cloud.mongodb.com](https://cloud.mongodb.com) and log in
+2. Click **Database Access** in the left sidebar
+3. Find `len_admin` → click **Edit** → under **Password Authentication**, click **Edit Password** → copy or generate a new password
 
-Default admin credentials:
-- **Username**: `admin`
-- **Password**: `admin123`
+**B. Allow connections from anywhere:**
+1. Click **Network Access** in the left sidebar
+2. Click **+ Add IP Address** → click **Allow Access from Anywhere** → Confirm
 
-> Change your password immediately after first login via Admin → Users → Create Account.
-
----
-
-## Step 3: GitHub Push
-
-Your repo is already set up at: `https://github.com/expoxtechinc/Lucky-Earth-News`
-
-```bash
-git add .
-git commit -m "feat: complete Lucky Earth News platform"
-git push origin main
-```
+**C. Update your Replit secret:**
+1. In Replit, click the **lock icon** (Secrets) in the left sidebar
+2. Find `MONGO_URI` → click Edit → replace `YOUR_PASSWORD` with your real password:
+   ```
+   mongodb+srv://len_admin:YOURPASSWORD@cluster0.uovzmre.mongodb.net/lucky-earth-news
+   ```
+3. Save, then tell the agent to restart the server
 
 ---
 
-## Step 4: Deploy Backend on Render
+## STEP 2 — Deploy the Backend API to Vercel
 
-Render is the recommended platform for the Node.js/Express API.
+1. Go to [vercel.com](https://vercel.com) → **Sign in with GitHub**
+2. Click **Add New Project**
+3. Find and import **`Lucky-Earth-News`** from your GitHub
+4. Configure the project settings:
 
-1. Go to [render.com](https://render.com) → sign up / log in with GitHub
-2. Click **New** → **Web Service**
-3. Connect your GitHub → select `Lucky-Earth-News`
-4. Configure the service:
+   | Setting | Value |
+   |---|---|
+   | **Project Name** | `lucky-earth-news-api` |
+   | **Root Directory** | `artifacts/api-server` |
+   | **Framework Preset** | **Other** |
+   | **Build Command** | _(leave blank)_ |
+   | **Output Directory** | _(leave blank)_ |
+   | **Install Command** | _(leave blank)_ |
 
-| Setting | Value |
-|---|---|
-| **Name** | `lucky-earth-news-api` |
-| **Root Directory** | `artifacts/api-server` |
-| **Environment** | `Node` |
-| **Build Command** | `npm install -g pnpm && pnpm install && pnpm run build` |
-| **Start Command** | `node --enable-source-maps ./dist/index.mjs` |
+5. Expand **Environment Variables** and add these three:
 
-5. Under **Environment Variables**, add all of these:
+   | Key | Value |
+   |---|---|
+   | `MONGO_URI` | Your full MongoDB connection string (from Step 1) |
+   | `JWT_SECRET` | Any long random text, e.g. `len-super-secret-jwt-2026-xK9mN3pQ` |
+   | `NODE_ENV` | `production` |
 
-| Key | Value |
-|---|---|
-| `MONGO_URI` | `mongodb+srv://user:pass@cluster0.xxxx.mongodb.net/lucky-earth-news` |
-| `JWT_SECRET` | Any long random string (min 32 chars) |
-| `PORT` | `10000` |
-| `NODE_ENV` | `production` |
+6. Click **Deploy** — wait about 60 seconds
 
-6. Click **Create Web Service** — Render will build and deploy automatically (takes ~3 minutes)
-
-Your API will be live at: `https://lucky-earth-news-api.onrender.com`
-
-> The backend also serves the static frontend, so the full site (homepage + admin) is accessible at the same URL.
+7. When done, copy your backend URL. It will look like:
+   ```
+   https://lucky-earth-news-api.vercel.app
+   ```
+   > Keep this URL — you need it in Step 3.
 
 ---
 
-## Step 5: Deploy Frontend on Vercel (Optional)
+## STEP 3 — Deploy the Frontend to Vercel
 
-If you want to host the React frontend separately for better performance:
-
-1. Go to [vercel.com](https://vercel.com) → sign in with GitHub
-2. Click **Add New Project** → import `Lucky-Earth-News`
+1. On Vercel, click **Add New Project** again
+2. Import **`Lucky-Earth-News`** again (same repo, different project)
 3. Configure:
 
-| Setting | Value |
-|---|---|
-| **Root Directory** | `artifacts/len-web` |
-| **Framework Preset** | `Vite` |
-| **Build Command** | `pnpm run build` |
-| **Output Directory** | `dist` |
+   | Setting | Value |
+   |---|---|
+   | **Project Name** | `lucky-earth-news` |
+   | **Root Directory** | `artifacts/len-web` |
+   | **Framework Preset** | **Vite** |
+   | **Build Command** | `npm install -g pnpm && pnpm install --frozen-lockfile=false && pnpm run build` |
+   | **Output Directory** | `dist/public` |
 
-4. Add environment variable:
+4. Add these environment variables:
 
-| Key | Value |
-|---|---|
-| `VITE_API_URL` | `https://lucky-earth-news-api.onrender.com` |
+   | Key | Value |
+   |---|---|
+   | `VITE_API_URL` | Your backend URL from Step 2 (e.g. `https://lucky-earth-news-api.vercel.app`) |
+   | `BASE_PATH` | `/` |
 
-5. Click **Deploy**
+5. Click **Deploy** — wait about 90 seconds
+
+6. Your public site is now live at something like:
+   ```
+   https://lucky-earth-news.vercel.app
+   ```
 
 ---
 
-## Step 6: Seed Production Database
+## STEP 4 — Seed the Database (Run Once)
 
-After your Render deployment is live:
+After both deployments are live, run this to create your admin account and 6 sample articles:
 
 ```bash
-curl -X POST https://lucky-earth-news-api.onrender.com/api/seed
+curl -X POST https://lucky-earth-news-api.vercel.app/api/seed
 ```
 
-Then visit `https://lucky-earth-news-api.onrender.com/admin` and log in with `admin` / `admin123`.
+Expected response:
+```json
+{"message": "Database seeded successfully. Admin credentials: username=admin, password=admin123"}
+```
 
 ---
 
-## Step 7: Secure Your Platform
+## STEP 5 — Log In and Secure Your Account
 
-After your first login:
-
-1. Go to **Admin → Users → Create Account**
-2. Create a new admin with a strong password
-3. Log out, log in with the new account
-4. Delete the default `admin` account
-
----
-
-## Environment Variables Reference
-
-| Variable | Required | Description |
-|---|---|---|
-| `MONGO_URI` | **Yes** | MongoDB Atlas connection string (with real password) |
-| `JWT_SECRET` | **Yes** | Random secret for JWT tokens — use 32+ random chars |
-| `PORT` | **Yes** | Port to listen on (Render sets this automatically) |
-| `NODE_ENV` | Recommended | Set to `production` |
+1. Visit `https://lucky-earth-news.vercel.app/admin`
+2. Log in with: **Username:** `admin` / **Password:** `admin123`
+3. Go to **Users** tab → Create a new admin account with a strong password
+4. Log out → log in with your new account
+5. Delete the default `admin` account
 
 ---
 
-## API Endpoints
+## Your Live Platform
+
+| Page | URL |
+|---|---|
+| Public News Site | `https://lucky-earth-news.vercel.app` |
+| Admin Dashboard | `https://lucky-earth-news.vercel.app/admin` |
+| Article Pages | `https://lucky-earth-news.vercel.app/news/:id` |
+| Backend API | `https://lucky-earth-news-api.vercel.app` |
+| Health Check | `https://lucky-earth-news-api.vercel.app/api/health` |
+
+---
+
+## API Reference
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | GET | `/api/health` | None | Health check |
-| POST | `/api/auth/login` | None | Admin login |
+| POST | `/api/auth/login` | None | Admin login, returns JWT |
 | POST | `/api/auth/register` | Admin JWT | Create new admin user |
 | GET | `/api/auth/users` | Admin JWT | List all users |
 | DELETE | `/api/auth/users/:id` | Admin JWT | Delete a user |
-| GET | `/api/news` | None | List articles (paginated) |
+| GET | `/api/news` | None | List articles (paginated, searchable) |
 | GET | `/api/news/:id` | None | Get single article |
 | POST | `/api/news` | Admin JWT | Create article |
 | PUT | `/api/news/:id` | Admin JWT | Update article |
 | DELETE | `/api/news/:id` | Admin JWT | Delete article |
-| GET | `/api/news/categories` | None | List categories |
-| POST | `/api/seed` | None | Seed DB (run once) |
+| GET | `/api/news/categories` | None | List all categories |
+| POST | `/api/seed` | None | Seed DB with admin + sample articles |
 
 ---
 
 ## Auto-Deploy on Push
 
-After setup, every `git push origin main` will trigger an automatic Render redeploy.
+After setup, every time you push to `main` on GitHub, both Vercel projects automatically redeploy:
 
 ```bash
-# Make changes locally, then:
 git add .
-git commit -m "feat: your change description"
+git commit -m "feat: update"
 git push origin main
 ```
 
 ---
 
-## Health Check
+## Troubleshooting
 
-```bash
-curl https://lucky-earth-news-api.onrender.com/api/health
-# Expected: {"status":"ok"}
-```
+| Problem | Fix |
+|---|---|
+| `bad auth: authentication failed` | MongoDB password is wrong — re-check Step 1C |
+| `MongoServerSelectionError` | Atlas IP not whitelisted — re-check Step 1B |
+| Articles not loading on frontend | `VITE_API_URL` is wrong — re-check Step 3 env var |
+| Login fails | Database not seeded — run Step 4 |
+| Build fails on Vercel frontend | Make sure Root Directory is `artifacts/len-web` |
+| Build fails on Vercel backend | Make sure Root Directory is `artifacts/api-server` |
