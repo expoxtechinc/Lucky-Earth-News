@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky Earth News</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-globe">🌍</span>
+        <span class="logo-text">Lucky Earth <strong>News</strong></span>
+      </a>
+      <nav class="nav">
+        <a href="/" class="nav-link active">Home</a>
+        <a href="/admin" class="nav-link nav-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Your World. <span>Your News.</span></h1>
+      <p class="hero-sub">Real stories, real time — delivered fresh from every corner of the globe.</p>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search news..." autocomplete="off" />
+        <button id="searchBtn">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="filters-wrap">
+      <div class="filters" id="categoryFilters">
+        <button class="filter-btn active" data-cat="all">All</button>
+      </div>
+    </div>
+
+    <div id="newsGrid" class="news-grid"></div>
+    <div id="loadMore" class="load-more-wrap" style="display:none">
+      <button id="loadMoreBtn" class="load-more-btn">Load More</button>
+    </div>
+    <div id="emptyState" class="empty-state" style="display:none">
+      <div class="empty-icon">📰</div>
+      <h3>No news found</h3>
+      <p>Try a different search or category.</p>
+    </div>
+    <div id="loader" class="loader-wrap"><div class="spinner"></div></div>
+  </main>
+
+  <div id="modal" class="modal" style="display:none">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <img id="modalImg" src="" alt="" class="modal-img" />
+      <div class="modal-body">
+        <span id="modalCat" class="badge"></span>
+        <h2 id="modalTitle"></h2>
+        <p id="modalDate" class="modal-date"></p>
+        <p id="modalContent"></p>
+        <a id="modalVideo" href="#" target="_blank" class="video-link" style="display:none">▶ Watch Video</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Lucky Earth News. All rights reserved.</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
