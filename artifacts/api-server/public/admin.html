@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LEN Admin Dashboard</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-body">
+
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-globe">🌍</span>
+        <span class="logo-text">Lucky Earth <strong>News</strong></span>
+      </div>
+      <h2>Admin Login</h2>
+      <p class="login-sub">Sign in to manage your news platform</p>
+      <div id="loginError" class="alert alert-error" style="display:none"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter username" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Sign In</button>
+      </form>
+      <p class="login-hint">Default: <code>admin</code> / <code>admin123</code> (after seeding)</p>
+    </div>
+  </div>
+
+  <div id="dashboard" class="dashboard" style="display:none">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-globe">🌍</span>
+        <span class="logo-text">LEN <strong>Admin</strong></span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-view="news">📰 All News</a>
+        <a href="#" class="sidebar-link" data-view="create">✏️ Create Post</a>
+        <a href="/" class="sidebar-link" target="_blank">🌐 View Site</a>
+      </nav>
+      <button class="sidebar-logout" id="logoutBtn">Sign Out</button>
+    </aside>
+
+    <div class="dashboard-content">
+      <div class="dash-header">
+        <div>
+          <h1 id="dashTitle">All News</h1>
+          <p id="dashSub" class="dash-sub">Manage your published stories</p>
+        </div>
+        <div class="dash-actions">
+          <button class="btn btn-primary" id="newPostBtn">+ New Post</button>
+          <button class="btn btn-outline" id="seedBtn">Seed DB</button>
+        </div>
+      </div>
+
+      <div id="alertBox" class="alert" style="display:none"></div>
+
+      <div id="statsRow" class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Posts</div></div>
+        <div class="stat-card"><div class="stat-num" id="statCats">—</div><div class="stat-label">Categories</div></div>
+        <div class="stat-card"><div class="stat-num" id="statLatest">—</div><div class="stat-label">Latest Post</div></div>
+      </div>
+
+      <div id="newsView">
+        <div class="table-wrap">
+          <table class="news-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="newsTableBody"></tbody>
+          </table>
+          <div id="tableLoader" class="loader-wrap"><div class="spinner"></div></div>
+          <div id="tableEmpty" class="empty-state" style="display:none">
+            <div class="empty-icon">📋</div>
+            <p>No posts yet. Create your first one!</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="formView" style="display:none">
+        <div class="form-card">
+          <h2 id="formTitle">Create New Post</h2>
+          <form id="newsForm">
+            <input type="hidden" id="editId" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Title <span class="req">*</span></label>
+                <input type="text" id="fTitle" placeholder="Enter news title" required />
+              </div>
+              <div class="form-group">
+                <label>Category <span class="req">*</span></label>
+                <input type="text" id="fCategory" placeholder="e.g. World, Tech, Sports" required list="catList" />
+                <datalist id="catList">
+                  <option value="World" />
+                  <option value="Technology" />
+                  <option value="Sports" />
+                  <option value="Business" />
+                  <option value="Health" />
+                  <option value="Entertainment" />
+                  <option value="Politics" />
+                </datalist>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Content <span class="req">*</span></label>
+              <textarea id="fContent" rows="8" placeholder="Write the full news story here..." required></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" id="fImage" placeholder="https://example.com/image.jpg" />
+              </div>
+              <div class="form-group">
+                <label>Video URL (optional)</label>
+                <input type="url" id="fVideo" placeholder="https://youtube.com/watch?v=..." />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="formSubmitBtn">Publish Post</button>
+              <button type="button" class="btn btn-outline" id="cancelFormBtn">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="modal" style="display:none">
+    <div class="modal-backdrop" id="deleteBackdrop"></div>
+    <div class="modal-box modal-confirm">
+      <h3>Delete Post?</h3>
+      <p>This action cannot be undone.</p>
+      <div class="form-actions">
+        <button class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+        <button class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>
