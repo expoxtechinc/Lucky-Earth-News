@@ -27,31 +27,43 @@ app.use(
   }),
 );
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Public directory is always at <artifact-root>/public
-// ARTIFACT_DIR is set in the workflow env, fallback to relative from cwd
-const artifactDir = process.env["ARTIFACT_DIR"] ?? path.resolve(process.cwd());
-const frontendPath = path.join(artifactDir, "public");
+const artifactDir = process.env["ARTIFACT_DIR"];
 
-logger.info({ frontendPath }, "Serving static files from");
+if (artifactDir) {
+  const frontendPath = path.join(artifactDir, "public");
+  logger.info({ frontendPath }, "Serving static files from");
+  app.use(express.static(frontendPath));
 
-app.use(express.static(frontendPath));
+  app.get("/admin", (_req, res) => {
+    res.sendFile(path.join(frontendPath, "admin.html"));
+  });
 
-app.get("/admin", (_req, res) => {
-  res.sendFile(path.join(frontendPath, "admin.html"));
-});
+  app.get("/admin/{*path}", (_req, res) => {
+    res.sendFile(path.join(frontendPath, "admin.html"));
+  });
 
-app.get("/admin/{*path}", (_req, res) => {
-  res.sendFile(path.join(frontendPath, "admin.html"));
-});
-
-app.get("/{*path}", (_req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
+  app.get("/{*path}", (_req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+} else {
+  app.get("/", (_req, res) => {
+    res.json({
+      name: "Lucky Earth News API",
+      version: "1.0.0",
+      status: "ok",
+      docs: "/api/health",
+    });
+  });
+}
 
 export default app;
