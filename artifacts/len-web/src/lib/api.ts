@@ -1,4 +1,5 @@
-export const API_BASE = "/api";
+const backendUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+export const API_BASE = backendUrl ? `${backendUrl}/api` : "/api";
 
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
