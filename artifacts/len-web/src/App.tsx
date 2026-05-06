@@ -2,6 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import Header from "@/components/Header";
 import Home from "@/pages/Home";
 import Admin from "@/pages/Admin";
+import ArticlePage from "@/pages/ArticlePage";
 
 function Router() {
   return (
@@ -11,6 +12,7 @@ function Router() {
         <>
           <Header />
           <Switch>
+            <Route path="/news/:id" component={ArticlePage} />
             <Route path="/" component={Home} />
           </Switch>
         </>
